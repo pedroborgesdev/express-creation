@@ -92,7 +92,7 @@ const ClickTestArea = ({ cps }: ClickTestAreaProps) => {
 
       <div className="absolute bottom-4 right-4 flex items-baseline gap-2 pointer-events-none">
         <span className="text-sm text-muted-foreground">CPS Counter:</span>
-        <span className="text-4xl font-bold text-primary animate-float">{currentCPS}</span>
+        <span className="text-4xl font-bold text-primary">{currentCPS}</span>
       </div>
     </div>
   );

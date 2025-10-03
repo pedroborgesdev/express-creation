@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MouseIllustration from "@/components/MouseIllustration";
 import SettingRow from "@/components/SettingRow";
 import ClickTestArea from "@/components/ClickTestArea";
@@ -13,20 +13,40 @@ const Index = () => {
   const [activateHotkey, setActivateHotkey] = useState("Button2");
   const [desiredKey, setDesiredKey] = useState<"Left" | "Right">("Left");
   const [activeOnlyWhenPressed, setActiveOnlyWhenPressed] = useState(true);
+  const [isListeningForKey, setIsListeningForKey] = useState(false);
+
+  const handleHotkeyClick = () => {
+    setIsListeningForKey(true);
+    setActivateHotkey("Press any key...");
+  };
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (isListeningForKey) {
+        e.preventDefault();
+        const keyName = e.key === " " ? "Space" : e.key;
+        setActivateHotkey(keyName);
+        setIsListeningForKey(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [isListeningForKey]);
 
   return (
     <div className="min-h-screen bg-background p-8 flex items-center justify-center">
       <div className="w-full max-w-5xl">
         {/* Window Controls */}
-        <div className="flex justify-end gap-2 mb-6 bg-panel/50 backdrop-blur-sm border border-panel-border rounded-lg p-3 shadow-lg">
-          <button className="w-12 h-8 bg-interactive hover:bg-interactive-hover rounded transition-all duration-200 flex items-center justify-center hover:shadow-glow group">
-            <span className="text-foreground text-xl leading-none group-hover:scale-110 transition-transform">−</span>
+        <div className="flex justify-end gap-2 mb-6 bg-panel/50 backdrop-blur-sm border border-panel-border rounded-lg p-3">
+          <button className="w-12 h-8 bg-interactive hover:bg-interactive-hover rounded transition-colors flex items-center justify-center">
+            <span className="text-foreground text-xl leading-none">−</span>
           </button>
-          <button className="w-12 h-8 bg-interactive hover:bg-interactive-hover rounded transition-all duration-200 flex items-center justify-center hover:shadow-glow group">
-            <span className="text-foreground text-xl leading-none group-hover:scale-110 transition-transform">□</span>
+          <button className="w-12 h-8 bg-interactive hover:bg-interactive-hover rounded transition-colors flex items-center justify-center">
+            <span className="text-foreground text-xl leading-none">□</span>
           </button>
-          <button className="w-12 h-8 bg-destructive hover:bg-destructive/80 rounded transition-all duration-200 flex items-center justify-center hover:shadow-[0_0_20px_rgba(220,38,38,0.4)] group">
-            <span className="text-destructive-foreground text-xl leading-none group-hover:scale-110 transition-transform">×</span>
+          <button className="w-12 h-8 bg-destructive hover:bg-destructive/80 rounded transition-colors flex items-center justify-center">
+            <span className="text-destructive-foreground text-xl leading-none">×</span>
           </button>
         </div>
 
@@ -39,7 +59,7 @@ const Index = () => {
 
           {/* Settings Panel */}
           <div className="space-y-6">
-            <div className="bg-panel border border-panel-border rounded-xl p-6 shadow-card backdrop-blur-sm hover:shadow-glow transition-shadow duration-300">
+            <div className="bg-panel border border-panel-border rounded-xl p-6 shadow-card backdrop-blur-sm">
               <SettingRow label="CPS (click per second)">
                 <div className="flex items-center gap-3 w-48">
                   <Slider
@@ -79,7 +99,8 @@ const Index = () => {
               <SettingRow label="Activate Hotkey">
                 <Button
                   variant="secondary"
-                  className="min-w-[120px] bg-interactive hover:bg-interactive-hover"
+                  onClick={handleHotkeyClick}
+                  className={`min-w-[120px] bg-interactive hover:bg-interactive-hover ${isListeningForKey ? 'ring-2 ring-primary' : ''}`}
                 >
                   {activateHotkey}
                 </Button>
